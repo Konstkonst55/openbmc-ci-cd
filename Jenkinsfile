@@ -1,10 +1,18 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+            args '-u root:root'
+        }
+    }
 
     stages {
 
         stage('Prepare') {
             steps {
+                sh 'apt update'
+                sh 'apt install -y qemu-system-arm chromium chromium-driver locust jq'
+                sh 'pip install --upgrade pip'
                 sh 'pip install -r tests/requirements.txt'
             }
         }
