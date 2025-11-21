@@ -5,3 +5,4 @@ selenium>=4.0.0
 webdriver-manager>=3.0.0
 locust>=2.0.0
 urllib3>=1.26.0
+pytest-timeout>=2.0.0

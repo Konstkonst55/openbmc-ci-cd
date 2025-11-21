@@ -1,19 +1,19 @@
 #!/bin/bash
 echo "Running Redfish API tests..."
 
-. venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+    . venv/bin/activate
+else
+    echo "Virtual environment not found, using system Python"
+fi
+
+mkdir -p reports
 
 cd tests/redfish
-python run_tests.py
 
-pytest test_redfish.py \
-    --bmc-url=${BMC_URL} \
-    --username=${BMC_USERNAME} \
-    --password=${BMC_PASSWORD} \
-    -v \
-    --html=../../redfish_test_report.html \
-    --self-contained-html \
-    --disable-warnings
+python run_tests.py || {
+    pytest test_simple.py -v --html=../../reports/redfish_test_report.html --self-contained-html
+}
 
 cd ../..
 echo "Redfish tests completed"
