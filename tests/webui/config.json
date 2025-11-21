@@ -1,0 +1,10 @@
+{
+    "openbmc_url": "https://localhost:2443",
+    "valid_username": "root",
+    "valid_password": "0penBmc",
+    "testuser_username": "testuser",
+    "testuser_password": "testpass",
+    "invalid_password": "wrongpassword",
+    "implicit_wait": 10,
+    "explicit_wait": 30
+}
