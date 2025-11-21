@@ -1,16 +1,4 @@
 #!/bin/bash
-echo "Running load tests with Locust..."
-
-. venv/bin/activate
-
 cd tests/load
-locust -f locustfile.py \
-    --headless \
-    --users 2 \
-    --spawn-rate 1 \
-    --run-time 1m \
-    --html=../../locust_report.html \
-    --host=${BMC_URL}
-
-cd ../..
-echo "Load tests completed"
+locust -f locustfile.py --headless -u 10 -r 2 -t 30s --csv ../../locust
+mv ../../locust_stats_requests.csv ../../locust_stats.csv
