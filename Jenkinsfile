@@ -2,70 +2,69 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/var/jenkins_home/.local/bin:${PATH}"
+        PATH = "/var/jenkins_home/.local/bin:/usr/local/bin:${env.PATH}"
+        QEMU_PID = ""
     }
 
     stages {
-
         stage('Prepare') {
             steps {
                 sh '''
                     apt-get update
-                    apt-get install -y qemu-system-arm chromium chromium-driver unzip wget
-                    pip3 install --break-system-packages -r tests/requirements.txt
+                    apt-get install -y qemu-system-arm chromium-browser chromium-driver unzip wget curl python3-pip
+                    pip3 install --user -r tests/requirements.txt
                 '''
             }
         }
 
         stage('Start QEMU') {
             steps {
-                sh '''
-                    chmod +x scripts/start_qemu.sh
-                    scripts/start_qemu.sh
-                '''
+                script {
+                    QEMU_PID = sh(script: "scripts/start_qemu.sh & echo \$!", returnStdout: true).trim()
+                    env.QEMU_PID = QEMU_PID
+                }
+                sh 'sleep 60'
             }
         }
 
         stage('Redfish Tests') {
             steps {
-                sh '''
-                    chmod +x scripts/run_redfish_tests.sh
-                    scripts/run_redfish_tests.sh
-                '''
+                sh 'scripts/run_redfish_tests.sh'
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'test_report_redfish.html'
+                    archiveArtifacts artifacts: 'redfish_report.html', allowEmptyArchive: true
                 }
             }
         }
 
         stage('WebUI Tests') {
             steps {
-                sh '''
-                    chmod +x scripts/run_webui_tests.sh
-                    scripts/run_webui_tests.sh
-                '''
+                sh 'scripts/run_webui_tests.sh'
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'webui_report.html'
+                    archiveArtifacts artifacts: 'webui_report.html', allowEmptyArchive: true
                 }
             }
         }
 
         stage('Load Tests') {
             steps {
-                sh '''
-                    chmod +x scripts/run_load_tests.sh
-                    scripts/run_load_tests.sh
-                '''
+                sh 'scripts/run_load_tests.sh'
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'locust_stats.csv'
+                    archiveArtifacts artifacts: 'locust_report.html', allowEmptyArchive: true
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            sh 'kill ${QEMU_PID} || true'
+            sh 'pkill -9 qemu-system-arm || true'
         }
     }
 }

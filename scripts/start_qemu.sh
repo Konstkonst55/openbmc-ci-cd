@@ -1,29 +1,23 @@
 #!/bin/bash
-
 set -e
 
 mkdir -p romulus
 cd romulus
 
-if ! command -v unzip >/dev/null 2>&1; then
-    apt-get update
-    apt-get install -y unzip
+IMAGE_URL="https://jenkins.openbmc.org/job/ci-openbmc/lastSuccessfulBuild/artifact/openbmc/build/tmp/deploy/images/romulus/obmc-phosphor-image-romulus.static.mtd"
+
+if [ ! -f obmc-phosphor-image-romulus.static.mtd ]; then
+    echo "Downloading fixed OpenBMC image..."
+    wget -q $IMAGE_URL -O obmc-phosphor-image-romulus.static.mtd
 fi
 
-wget -q https://jenkins.openbmc.org/job/ci-openbmc/lastSuccessfulBuild/distro=ubuntu,label=docker-builder,target=romulus/artifact/openbmc/build/tmp/deploy/images/romulus/romulus.zip
-
-unzip -o romulus.zip
-
-MTD_FILE=$(ls obmc-phosphor-image-romulus-*.static.mtd | head -n 1)
-
-cd ..
+echo "Starting QEMU with OpenBMC..."
 
 qemu-system-arm \
-  -m 256 \
-  -M romulus-bmc \
-  -nographic \
-  -drive file=romulus/$MTD_FILE,format=raw,if=mtd \
-  -net nic \
-  -net user,hostfwd=:0.0.0.0:2222-:22,hostfwd=:0.0.0.0:2443-:443,hostfwd=udp:0.0.0.0:2623-:623,hostname=qemu \
-  &
-sleep 40
+    -m 512 \
+    -M romulus-bmc \
+    -nographic \
+    -drive file=obmc-phosphor-image-romulus.static.mtd,format=raw,if=mtd \
+    -net nic \
+    -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::2443-:443,hostfwd=udp::2623-:623,hostname=qemu \
+    -serial mon:stdio
