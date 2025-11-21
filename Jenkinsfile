@@ -1,19 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-            args '-u root:root'
-        }
-    }
+    agent any
 
     stages {
 
         stage('Prepare') {
             steps {
-                sh 'apt update'
-                sh 'apt install -y qemu-system-arm chromium chromium-driver locust jq'
-                sh 'pip install --upgrade pip'
-                sh 'pip install -r tests/requirements.txt'
+                sh 'pip3 install -r tests/requirements.txt'
             }
         }
 
@@ -31,7 +23,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'test_report_redfish.html', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'test_report_redfish.html'
                 }
             }
         }
@@ -43,7 +35,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'webui_report.html', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'webui_report.html'
                 }
             }
         }
@@ -55,7 +47,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'locust_stats.csv', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'locust_stats.csv'
                 }
             }
         }
