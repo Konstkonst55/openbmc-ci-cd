@@ -5,7 +5,7 @@ pipeline {
 
         stage('Prepare') {
             steps {
-                sh 'pip3 install -r tests/requirements.txt'
+                sh 'pip3 install --break-system-packages -r tests/requirements.txt'
             }
         }
 
