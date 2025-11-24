@@ -13,4 +13,6 @@ locust -f locustfile.py \
     --run-time=30s \
     --headless \
     --html=../artifacts/load_tests/locust_report.html \
-    --csv=../artifacts/load_tests/locust_stats
+    --csv=../artifacts/load_tests/locust_stats \
+    --skip-log-setup \
+    --only-summary

@@ -42,24 +42,3 @@ class OpenBMCTestUser(HttpUser):
                     response.failure("Invalid JSON response")
             else:
                 response.failure(f"Status code: {response.status_code}")
-
-class PublicAPIUser(HttpUser):
-    wait_time = between(1, 2)
-    host = "https://jsonplaceholder.typicode.com"
-    
-    @task
-    def get_posts(self):
-        with self.client.get("/posts",
-                             name="[JSON] Posts",
-                             catch_response=True) as response:
-            if response.status_code == 200:
-                try:
-                    posts = response.json()
-                    if len(posts) > 0:
-                        response.success()
-                    else:
-                        response.failure("Empty posts list")
-                except ValueError:
-                    response.failure("Invalid JSON response")
-            else:
-                response.failure(f"Status code: {response.status_code}")
