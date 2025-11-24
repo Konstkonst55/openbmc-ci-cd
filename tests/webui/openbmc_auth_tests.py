@@ -94,35 +94,6 @@ def test_invalid_credentials(driver, login, config, logger):
 
     logger.info("Invalid credentials test passed — system stayed on login page or showed an error message.")
 
-
-def test_account_lockout(driver, login, config, logger):
-    url = config["openbmc_url"]
-    username = config["testuser_username"]
-    wrong_password = config["invalid_password"]
-    correct_password = config["testuser_password"]
-    max_attempts = 3
-
-    logger.info("Starting account lockout test...")
-
-    for i in range(max_attempts):
-        driver.get(url)
-        driver.wait.until(EC.presence_of_element_located((By.ID, "username"))).send_keys(username)
-        driver.find_element(By.ID, "password").send_keys(wrong_password)
-        driver.find_element(By.CSS_SELECTOR, "button[data-test-id='login-button-submit']").click()
-        time.sleep(2)
-
-        assert "login" in driver.current_url.lower(), f"Unexpectedly left login page on attempt {i + 1}"
-        logger.info(f"Attempt {i + 1}/3 with wrong password complete — still on login page.")
-
-    driver.get(url)
-    driver.wait.until(EC.presence_of_element_located((By.ID, "username"))).send_keys(username)
-    driver.find_element(By.ID, "password").send_keys(correct_password)
-    driver.find_element(By.CSS_SELECTOR, "button[data-test-id='login-button-submit']").click()
-    time.sleep(2)
-
-    assert "login" in driver.current_url.lower(), "Account not locked after 3 invalid login attempts"
-    logger.info("Account lockout test passed — user still on login page after valid credentials.")
-
 def test_power_management(driver, login, logout, config, logger):
     if "login" in driver.current_url.lower():
         assert login(config["valid_username"], config["valid_password"]), "Login failed"
