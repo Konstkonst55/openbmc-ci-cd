@@ -1,11 +1,16 @@
 #!/bin/bash
-
 set -e
 
 cd /var/jenkins_home/workspace/romulus
 
+if [ ! -f "obmc-phosphor-image-romulus-20251003025918.static.mtd" ]; then
+    echo "ERROR: MTD file not found!"
+    exit 1
+fi
+
 QEMU_LOG="/tmp/qemu.log"
 
+echo "Starting QEMU..."
 qemu-system-arm \
     -m 256 \
     -M romulus-bmc \
@@ -18,4 +23,7 @@ qemu-system-arm \
 QEMU_PID=$!
 echo "$QEMU_PID" > /tmp/qemu.pid
 
+echo "Waiting for OpenBMC to start..."
 timeout 60 bash -c 'until curl -k -s https://localhost:2443 > /dev/null; do sleep 5; done'
+
+echo "OpenBMC is ready"
