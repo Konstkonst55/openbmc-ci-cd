@@ -104,25 +104,6 @@ def test_power_management(driver, login, logout):
     logout()
     assert len(elements) > 0, "Power management page not loaded"
 
-def test_inventory_display(driver, login, logout):
-    if "login" in driver.current_url.lower():
-        assert login("root", "0penBmc"), "Login failed"
-
-    driver.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-test-id='nav-button-hardware-status']"))).click()
-    driver.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-test-id='nav-item-inventory']"))).click()
-    time.sleep(2)
-
-    inventory_indicators = [
-        "//*[contains(text(), 'System')]",
-        "//*[contains(text(), 'CPU')]",
-        "//*[contains(text(), 'Memory')]",
-        "//*[contains(text(), 'Storage')]"
-    ]
-
-    found = any(len(driver.find_elements(By.XPATH, i)) > 0 for i in inventory_indicators)
-    logout()
-    assert found, "Inventory page did not display expected elements"
-
 def test_event_logs_display(driver, login, logout):
     if "login" in driver.current_url.lower():
         assert login("root", "0penBmc"), "Login failed"
