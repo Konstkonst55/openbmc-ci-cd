@@ -2,14 +2,37 @@ services:
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
+    user: root
+    privileged: true
     ports:
       - "8080:8080"
       - "50000:50000"
+      - "2443:2443"
     volumes:
-      - jenkins_data:/var/jenkins_home
+      - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./romulus:/var/jenkins_home/workspace/romulus
+      - ./tests:/var/jenkins_home/workspace/tests
+      - ./chromedriver:/var/jenkins_home/workspace/chromedriver
+      - ./scripts:/var/jenkins_home/workspace/scripts
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    command: >
+      bash -c "
+        apt-get update && 
+        apt-get install -y python3 python3-pip python3-venv curl wget git openssh-client qemu-system-arm &&
+        pip3 install selenium pytest requests locust webdriver-manager pytest-html &&
+        chmod +x /var/jenkins_home/workspace/scripts/*.sh &&
+        chmod +x /var/jenkins_home/workspace/chromedriver/chromedriver &&
+        /usr/local/bin/jenkins.sh
+      "
+
+  dind:
+    image: docker:dind
+    container_name: dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
 
 volumes:
-  jenkins_data:
+  jenkins_home:
