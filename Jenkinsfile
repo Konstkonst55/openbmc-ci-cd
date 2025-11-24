@@ -7,6 +7,7 @@ pipeline {
         BMC_PASSWORD = '0penBmc'
         WORKSPACE_DIR = '/var/jenkins_home/workspace'
         QEMU_PID_FILE = '/tmp/qemu.pid'
+        VENV_PATH = '/opt/venv'
     }
 
     stages {
@@ -30,7 +31,7 @@ pipeline {
                 '''
                 sh '${WORKSPACE}/scripts/start_qemu.sh'
                 sh '''
-                    timeout 300 bash -c 'until curl -k -s ${BMC_URL} > /dev/null; do sleep 10; done'
+                    timeout 300 bash -c "until curl -k -s ${BMC_URL} > /dev/null; do sleep 10; done"
                 '''
             }
         }

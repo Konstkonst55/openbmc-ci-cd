@@ -2,7 +2,8 @@
 
 cd /var/jenkins_home/workspace/tests
 
-pip3 install -r requirements.txt
+source /opt/venv/bin/activate
+pip install -r requirements.txt
 
 cd webui
 
