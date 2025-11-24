@@ -1,70 +1,72 @@
 pipeline {
     agent any
 
-    environment {
-        PATH = "/var/jenkins_home/.local/bin:/usr/local/bin:${env.PATH}"
-        QEMU_PID = ""
-    }
-
     stages {
-        stage('Prepare') {
+        stage('Установка зависимостей') {
             steps {
                 sh '''
                     apt-get update
-                    apt-get install -y qemu-system-arm chromium-browser chromium-driver unzip wget curl python3-pip
-                    pip3 install --user -r tests/requirements.txt
+                    apt-get install -y python3 python3-pip python3-venv qemu-system-arm wget unzip curl
+                    python3 -m venv /opt/venv
+                    . /opt/venv/bin/activate
+                    pip install -r tests/requirements.txt
                 '''
             }
         }
 
-        stage('Start QEMU') {
+        stage('Скачивание OpenBMC образа') {
             steps {
-                script {
-                    QEMU_PID = sh(script: "scripts/start_qemu.sh & echo \$!", returnStdout: true).trim()
-                    env.QEMU_PID = QEMU_PID
-                }
-                sh 'sleep 60'
+                sh '''
+                    mkdir -p romulus
+                    cd romulus
+                    wget -q "https://jenkins.openbmc.org/job/ci-openbmc/lastSuccessfulBuild/distro=ubuntu,label=docker-builder,target=romulus/artifact/openbmc/build/tmp/deploy/images/romulus/*zip*/romulus.zip" -O romulus.zip
+                    unzip -o romulus.zip
+                    find . -name "*.static.mtd" -exec mv {} . \\;
+                '''
             }
         }
 
-        stage('Redfish Tests') {
+        stage('Запуск QEMU с OpenBMC') {
             steps {
-                sh 'scripts/run_redfish_tests.sh'
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'redfish_report.html', allowEmptyArchive: true
-                }
+                sh '''
+                    ./scripts/stop_qemu.sh || true
+                    ./scripts/start_qemu.sh
+                '''
             }
         }
 
-        stage('WebUI Tests') {
+        stage('Redfish API тесты') {
             steps {
-                sh 'scripts/run_webui_tests.sh'
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'webui_report.html', allowEmptyArchive: true
-                }
+                sh '''
+                    . /opt/venv/bin/activate
+                    ./scripts/run_redfish_tests.sh
+                '''
             }
         }
 
-        stage('Load Tests') {
+        stage('WebUI тесты OpenBMC') {
             steps {
-                sh 'scripts/run_load_tests.sh'
+                sh '''
+                    . /opt/venv/bin/activate
+                    ./scripts/run_webui_tests.sh
+                '''
             }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'locust_report.html', allowEmptyArchive: true
-                }
+        }
+
+        stage('Нагрузочное тестирование') {
+            steps {
+                sh '''
+                    . /opt/venv/bin/activate
+                    ./scripts/run_load_tests.sh
+                '''
             }
         }
     }
 
     post {
         always {
-            sh 'kill ${QEMU_PID} || true'
-            sh 'pkill -9 qemu-system-arm || true'
+            sh './scripts/stop_qemu.sh || true'
+            archiveArtifacts artifacts: '*.html', allowEmptyArchive: true
         }
     }
 }
