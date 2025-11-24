@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-pytest tests/redfish/test_redfish.py \
+cd tests
+
+pytest redfish/test_redfish.py \
     --bmc-url=https://localhost:2443 \
     --username=root \
     --password=0penBmc \

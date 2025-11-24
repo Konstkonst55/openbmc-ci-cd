@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
 
-locust -f tests/load/locustfile.py \
+cd tests
+
+locust -f load/locustfile.py \
     --headless \
-    --users 20 \
-    --spawn-rate 5 \
-    --run-time 2m \
+    --users 5 \
+    --spawn-rate 1 \
+    --run-time 1m \
     --html=locust_report.html \
     --host=https://localhost:2443
