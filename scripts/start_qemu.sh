@@ -24,6 +24,6 @@ QEMU_PID=$!
 echo "$QEMU_PID" > /tmp/qemu.pid
 
 echo "Waiting for OpenBMC to start..."
-timeout 60 bash -c 'until curl -k -s https://localhost:2443 > /dev/null; do sleep 5; done'
+timeout 120 bash -c 'until curl -k -s https://localhost:2443 > /dev/null; do sleep 5; done'
 
 echo "OpenBMC is ready"
