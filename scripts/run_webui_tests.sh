@@ -2,6 +2,8 @@
 
 cd /var/jenkins_home/workspace/tests
 
+pip3 install -r requirements.txt --break-system-packages
+
 export DISPLAY=:99
 Xvfb :99 -screen 0 1920x1080x24 2>/dev/null &
 XVFB_PID=$!
