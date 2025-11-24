@@ -1,9 +1,13 @@
 #!/bin/bash
-set -e
 
-cd tests
+cd /var/jenkins_home/workspace/tests
 
-pytest webui/openbmc_auth_tests.py \
-    --html=webui_report.html \
+pip3 install -r requirements.txt
+
+cd webui
+
+pytest openbmc_auth_tests.py \
+    --html=../artifacts/webui_tests/report.html \
     --self-contained-html \
+    --junitxml=../artifacts/webui_tests/junit.xml \
     -v

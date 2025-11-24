@@ -1,13 +1,13 @@
 #!/bin/bash
-set -e
 
-cd tests
+cd /var/jenkins_home/workspace/tests
 
-pytest redfish/test_redfish.py \
-    --bmc-url=https://localhost:2443 \
-    --username=root \
-    --password=0penBmc \
-    -v \
-    --html=redfish_report.html \
+pip3 install -r requirements.txt
+
+cd redfish
+
+pytest test_redfish.py \
+    --html=../artifacts/redfish_tests/report.html \
     --self-contained-html \
-    --disable-warnings
+    --junitxml=../artifacts/redfish_tests/junit.xml \
+    -v

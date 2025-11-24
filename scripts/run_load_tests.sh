@@ -1,12 +1,16 @@
 #!/bin/bash
-set -e
 
-cd tests
+cd /var/jenkins_home/workspace/tests
 
-locust -f load/locustfile.py \
+pip3 install -r requirements.txt
+
+cd load
+
+locust -f locustfile.py \
+    --host=https://localhost:2443 \
+    --users=5 \
+    --spawn-rate=1 \
+    --run-time=30s \
     --headless \
-    --users 5 \
-    --spawn-rate 1 \
-    --run-time 1m \
-    --html=locust_report.html \
-    --host=https://localhost:2443
+    --html=../artifacts/load_tests/locust_report.html \
+    --csv=../artifacts/load_tests/locust_stats
