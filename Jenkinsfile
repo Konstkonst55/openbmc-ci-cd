@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         BMC_URL = 'https://localhost:2443'
-        BMC_USERNAME = 'root'
-        BMC_PASSWORD = '0penBmc'
     }
 
     stages {
