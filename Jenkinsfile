@@ -18,6 +18,12 @@ pipeline {
                     mkdir -p ${WORKSPACE}/artifacts/redfish_tests
                     mkdir -p ${WORKSPACE}/artifacts/load_tests
                     mkdir -p ${WORKSPACE}/artifacts/qemu_logs
+                    
+                    chmod +x ${WORKSPACE}/scripts/*.sh
+                    chmod +x ${WORKSPACE}/chromedriver/chromedriver
+                    
+                    ls -la ${WORKSPACE}/scripts/
+                    ls -la ${WORKSPACE}/chromedriver/
                 '''
             }
         }
