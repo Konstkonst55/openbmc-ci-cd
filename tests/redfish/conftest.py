@@ -1,9 +1,5 @@
 import pytest
 import requests
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class RedfishClient:
     def __init__(self, base_url, username, password):
