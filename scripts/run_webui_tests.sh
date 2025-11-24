@@ -2,8 +2,8 @@
 
 cd /var/jenkins_home/workspace/tests
 
-source /opt/venv/bin/activate
-pip install -r requirements.txt
+export DISPLAY=:99
+Xvfb :99 -screen 0 1920x1080x24 &
 
 cd webui
 

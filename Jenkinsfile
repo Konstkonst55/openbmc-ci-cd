@@ -5,9 +5,6 @@ pipeline {
         BMC_URL = 'https://localhost:2443'
         BMC_USERNAME = 'root'
         BMC_PASSWORD = '0penBmc'
-        WORKSPACE_DIR = '/var/jenkins_home/workspace'
-        QEMU_PID_FILE = '/tmp/qemu.pid'
-        VENV_PATH = '/opt/venv'
     }
 
     stages {
@@ -21,20 +18,12 @@ pipeline {
                     
                     chmod +x ${WORKSPACE}/scripts/*.sh
                     chmod +x ${WORKSPACE}/chromedriver/chromedriver
-                    
-                    ls -la ${WORKSPACE}/scripts/
-                    ls -la ${WORKSPACE}/chromedriver/
                 '''
             }
         }
 
         stage('Запуск QEMU с OpenBMC') {
             steps {
-                sh '''
-                    if [ -f ${QEMU_PID_FILE} ]; then
-                        ${WORKSPACE}/scripts/stop_qemu.sh
-                    fi
-                '''
                 sh '${WORKSPACE}/scripts/start_qemu.sh'
                 sh '''
                     timeout 300 bash -c "until curl -k -s ${BMC_URL} > /dev/null; do sleep 10; done"

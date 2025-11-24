@@ -17,15 +17,25 @@ services:
       - ./scripts:/var/jenkins_home/workspace/scripts
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no
     command: >
       bash -c "
         apt-get update && 
-        apt-get install -y python3 python3-pip python3-venv python3-full curl wget git openssh-client qemu-system-arm &&
-        chmod -R +x /var/jenkins_home/workspace/scripts &&
-        chmod -R +x /var/jenkins_home/workspace/chromedriver &&
-        python3 -m venv /opt/venv &&
-        . /opt/venv/bin/activate &&
-        pip install selenium pytest requests locust webdriver-manager pytest-html &&
+        apt-get install -y python3 python3-pip python3-venv python3-full curl wget git openssh-client qemu-system-arm qemu-utils &&
+        apt-get install -y chromium xvfb &&
+        apt-get install -y build-essential libssl-dev libffi-dev python3-dev &&
+        
+        pip3 install selenium pytest requests urllib3 locust --break-system-packages &&
+        pip3 install webdriver-manager pytest-html pytest-xvfb --break-system-packages &&
+        
+        echo '#!/bin/bash' > /usr/local/bin/chrome-wrapper &&
+        echo 'exec /usr/bin/chromium --no-sandbox --disable-dev-shm-usage --disable-gpu --headless --remote-debugging-port=9222 \"$$@\"' >> /usr/local/bin/chrome-wrapper &&
+        chmod +x /usr/local/bin/chrome-wrapper &&
+        
+        chmod +x /usr/bin/qemu-system-arm &&
+        chmod -R +x /var/jenkins_home/workspace/scripts/ &&
+        chmod -R +x /var/jenkins_home/workspace/chromedriver/ &&
+        
         /usr/local/bin/jenkins.sh
       "
 
