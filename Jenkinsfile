@@ -51,8 +51,7 @@ pipeline {
     post {
         always {
             sh '${WORKSPACE}/scripts/stop_qemu.sh'
-            archiveArtifacts artifacts: '**/artifacts/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: '**/artifacts/**/*.html', allowEmptyArchive: true
+            junit testResults: 'artifacts/**/junit.xml', allowEmptyResults: true
         }
     }
 }
