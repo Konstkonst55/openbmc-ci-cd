@@ -52,6 +52,7 @@ pipeline {
         always {
             sh '${WORKSPACE}/scripts/stop_qemu.sh'
             junit testResults: 'artifacts/**/junit.xml', allowEmptyResults: true
+            archiveArtifacts artifacts: 'artifacts/**/*', allowEmptyArchive: true
         }
     }
 }

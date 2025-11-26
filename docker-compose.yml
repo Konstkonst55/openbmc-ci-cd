@@ -15,6 +15,7 @@ services:
       - ./tests:/var/jenkins_home/workspace/tests
       - ./chromedriver:/var/jenkins_home/workspace/chromedriver
       - ./scripts:/var/jenkins_home/workspace/scripts
+      - ./artifacts:/var/jenkins_home/workspace/artifacts
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no
